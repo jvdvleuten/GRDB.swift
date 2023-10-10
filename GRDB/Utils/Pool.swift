@@ -93,7 +93,9 @@ final class Pool<T> {
                 }
                 return (element: item.element, release: { self.release(item, completion: $0) })
             } catch {
-                itemsSemaphore.signal()
+                _ = semaphoreWaitingQueue.sync {
+                    self.itemsSemaphore.signal()
+                }
                 itemsGroup.leave()
                 throw error
             }
@@ -141,7 +143,9 @@ final class Pool<T> {
                 }
             }
         }
-        itemsSemaphore.signal()
+        _ = semaphoreWaitingQueue.sync {
+            self.itemsSemaphore.signal()
+        }
         itemsGroup.leave()
     }
     
