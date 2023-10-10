@@ -77,7 +77,10 @@ final class Pool<T> {
     /// Client must call release(), only once, after the element has been used.
     func get() throws -> (element: T, release: (PoolCompletion) -> Void) {
         try barrierQueue.sync {
-            itemsSemaphore.wait()
+            semaphoreWaitingQueue.sync {
+                print(DispatchQoS.QoSClass(rawValue: qos_class_self())!)
+                itemsSemaphore.wait()
+            }
             itemsGroup.enter()
             do {
                 let item = try $items.update { items -> Item in
